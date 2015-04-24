@@ -1,0 +1,64 @@
+WordPredictor
+========================================================
+
+Objectives
+========================================================
+
+**WordPredictor** is a prototype statistical learning model for word prediction. Given a certain text, **WordPredictor** suggests the following word, based on the last words in the text. **WordPredictor** computes the probability of the next word searching an N-gram database. N-grams are compounds of N words in sequence. **WordPredictor**'s database contains the probability of occurence of words, bigrams and trigrams learned by inspecting more than 400,000 documents with an average of xxx words each. 
+
+
+Training And Evaluation
+========================================================
+
+Words database
+---
+
+Before extracting tokens (word instances) from them, the training texts are preprocessed in order to standardize word forms. The folowing transformations are applied.
+
+* Convert text to ASCII
+* Translate text to lower case
+* Remove numbers, punctuation and strange characters
+
+Once the tokens are extracted, word frequencies are computed (number of times a word appears in the corpus of texts). Words that appear once in a group of 120,000 types (different words) are purged from the data base. This process is repeated several times until the training data set is exhausted. A total of 85,000 types are part of the Words data base. Words are encoded as integers in order to improve performance.
+
+N-grams database
+---
+
+Once the Words data base is complete, bi-grams and tri-grams are collected. Words present in the generated n-grams that do not exist in the Words database are replaced by a special token. N-grams are encoded using the same encoding scheme used for words. After processing the whole training set, more than 1 million bigrams and 5 million trigrams were identified.
+
+Prediction Model
+---
+
+The algorithm for prediction consists in the following steps.
+
+1. Search the tri-gram data base for entries with first and second words identical to the last two words in the text. If one or more entries are found, return the third word in the tri-gram with the highest probability.
+
+2. If no entry is found in the tri-grams data base, repeat the same procedure in the bi-grams data base, this time searching bigrams starting with the last word in the text. If one or more entries are found, return the second word of the bi-gram with the highest probability.
+
+3. If no entry is found in both the bigram and trigram databases, return the word with the highest probability in the Words database.
+
+Model Evaluation
+---
+
+The model was evaluated on a previously segregated validation set of about 400,000 texts of the same corpus from which the training set was extracted. In order to measure the accuracy of the model's predictions the following procedure was used.
+
+1. Select a batch of 300 to 500 texts to process.
+2. For each text in the batch, choose a word at random (target) and remove any further text from that point on. 
+3. Predict next word in the truncated text. Save the three most probable ones.
+4. Save the target, the predicted words and the truncated text in an evaluation database.
+5. Repeat steps 1 to 4 with the next batch.
+
+After processing more than 2000 texts in this fashion it was clear that the total accuracy ratios were converging to definite final numbers, so the evaluation process was early finished at that point. 
+
+The model was able to identify the correct word in 19% of the time with the first word chosen, 5% of the time with the second one and 1% of the time with the third one. When the N-grams databases were purged of n-grams ooccurring only once in order to improve performance and memory use, the same testing records yielded an accuracy ratio of 15%, 3% and 0.1% correspondingly.
+
+Implementation characteristics
+---
+
+WordPredictor model was built almost completely with ad-hoc functions in R, except for some minor use of the package tm and the implementation of the hash table for words using the hash package. 
+
+WordPredictor uses an encoding scheme for coding words, bigrams and trigrams as integers that allows for fast searches and efficient memory usage. The whole application, including code and data structures amounts to not more than 25 MB of storage. 
+
+WordPredictor training and testing processes are designed to be run as a sequence of batch processes allowing for manageable memory usages and reasonable performance. WordPredictor's process design enables systems with relatively small processing power to train huge amounts of data.
+
+WordPredictor's protopype model uses Witten-Belt discounted probabilities and a standard tri-gram backoff model for predictions, but its functions and data structures are n-gram generalized and can be easily extended to manage n-grams of higher orders.

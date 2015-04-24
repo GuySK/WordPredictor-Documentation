@@ -1,0 +1,8 @@
+.small_font {
+  font-size: 6pt
+}
+.funkyclass {
+    font: 36pt/40pt courier;
+    font-variant: small-caps;
+    border: thick dashed blue 
+}
